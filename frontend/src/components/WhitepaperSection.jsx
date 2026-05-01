@@ -48,9 +48,9 @@ export default function WhitepaperSection() {
                     {s.heading}
                   </h3>
                   {s.body &&
-                    s.body.map((p, i) => (
+                    s.body.map((p) => (
                       <p
-                        key={i}
+                        key={`${s.id}-p-${p.slice(0, 32)}`}
                         className="mt-3 font-mono text-[13.5px] leading-[1.75] text-white/65"
                       >
                         {p}
@@ -58,9 +58,9 @@ export default function WhitepaperSection() {
                     ))}
                   {s.list && (
                     <ul className="mt-4 grid gap-2.5">
-                      {s.list.map((item, i) => (
+                      {s.list.map((item) => (
                         <li
-                          key={i}
+                          key={`${s.id}-li-${item.slice(0, 32)}`}
                           className="flex gap-3 font-mono text-[13px] leading-[1.65] text-white/65"
                         >
                           <span className="mt-2 h-px w-3 shrink-0 bg-[#3D7BFF]/70" />

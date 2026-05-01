@@ -1,31 +1,22 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import {
+  BASE_RPC_URLS,
+  ERC20_DECIMALS_SELECTOR,
+  ERC20_TOTAL_SUPPLY_SELECTOR,
+  NULLAI_TOKEN_ADDRESS,
+  ORIGINAL_SUPPLY_NULLAI,
+  POLLING_INTERVAL_MS,
+} from "@/config/constants";
 
 /**
  * Live on-chain telemetry for the NULLAI token on Base Mainnet.
- *
- * Reads:
- *   - totalSupply()    selector 0x18160ddd
- *   - decimals()       selector 0x313ce567 (cached after first read)
- *
- * Polls every `intervalMs` (default 15s).
- * Uses public Base RPC by default — no API key required, read-only.
- *
- * Returns a stable shape so the UI can always render either live or fallback values.
+ *   - Polls totalSupply() every `intervalMs` (default 15s).
+ *   - Reads decimals() once and caches it for the session.
+ *   - Fails over across multiple public RPC endpoints (no API key required).
+ *   - Returns a stable shape so the UI can always render either live or fallback values.
  */
 
-const DEFAULT_RPCS = [
-  "https://base.llamarpc.com",
-  "https://base.publicnode.com",
-  "https://base-mainnet.public.blastapi.io",
-  "https://1rpc.io/base",
-  "https://mainnet.base.org",
-];
-const TOKEN_ADDRESS = "0x86aC40CD4c57f68E89c515BF45d9fD19d7CcF095";
-const ORIGINAL_SUPPLY = 1_000_000_000; // 1,000,000,000 NULLAI
-
-const SEL_TOTAL_SUPPLY = "0x18160ddd";
-const SEL_DECIMALS = "0x313ce567";
-
+// ─── RPC helpers ────────────────────────────────────────────────────────────
 async function ethCall(rpcUrl, to, data) {
   const res = await fetch(rpcUrl, {
     method: "POST",
@@ -42,13 +33,9 @@ async function ethCall(rpcUrl, to, data) {
   const json = await res.json();
   if (json.error) throw new Error(json.error.message || "RPC error");
   if (!json.result || json.result === "0x") throw new Error("Empty RPC result");
-  return json.result; // hex string
+  return json.result;
 }
 
-/**
- * Try a list of RPC endpoints in order, returning the first successful result.
- * Records the endpoint that worked so subsequent calls reuse it for the session.
- */
 async function ethCallWithFailover(rpcList, to, data, preferredRef) {
   const ordered = preferredRef?.current
     ? [preferredRef.current, ...rpcList.filter((u) => u !== preferredRef.current)]
@@ -67,19 +54,20 @@ async function ethCallWithFailover(rpcList, to, data, preferredRef) {
   throw lastError || new Error("All RPC endpoints failed");
 }
 
+// ─── Pure utilities (no React, no hooks) ────────────────────────────────────
 function hexToBigInt(hex) {
   return BigInt(hex);
 }
 
 /**
- * Convert raw token units (BigInt) into a JS Number with two-decimal precision.
- * Safe for large supplies because we slice the string before converting.
+ * Convert raw token units (BigInt) into a JS Number with 4dp internal precision.
+ * Safe for very large supplies — strings are sliced before parseFloat.
  */
 function rawToNumber(rawBig, decimals) {
   if (decimals === 0) return Number(rawBig);
   const s = rawBig.toString().padStart(decimals + 1, "0");
   const intPart = s.slice(0, s.length - decimals);
-  const fracPart = s.slice(s.length - decimals).slice(0, 4); // 4 dp internal
+  const fracPart = s.slice(s.length - decimals).slice(0, 4);
   return parseFloat(`${intPart}.${fracPart}`);
 }
 
@@ -91,21 +79,30 @@ function formatWithCommas(n, fractionDigits = 0) {
   });
 }
 
+function deriveSupplyMetrics(totalSupplyHuman) {
+  const burned = Math.max(ORIGINAL_SUPPLY_NULLAI - totalSupplyHuman, 0);
+  const burnRatio = (burned / ORIGINAL_SUPPLY_NULLAI) * 100;
+  return { burned, burnRatio };
+}
+
+const INITIAL_STATE = {
+  status: "idle", // 'idle' | 'loading' | 'live' | 'fallback'
+  totalSupply: ORIGINAL_SUPPLY_NULLAI,
+  burned: 0,
+  burnRatio: 0,
+  decimals: 18,
+  lastSyncMs: null,
+  error: null,
+  pulse: 0,
+  rpcUsed: null,
+};
+
+// ─── Hook ───────────────────────────────────────────────────────────────────
 export function useNullaiOnChain({
-  rpcUrls = DEFAULT_RPCS,
-  intervalMs = 15_000,
+  rpcUrls = BASE_RPC_URLS,
+  intervalMs = POLLING_INTERVAL_MS,
 } = {}) {
-  const [state, setState] = useState({
-    status: "idle", // 'idle' | 'loading' | 'live' | 'fallback'
-    totalSupply: ORIGINAL_SUPPLY,
-    burned: 0,
-    burnRatio: 0, // percentage 0..100
-    decimals: 18,
-    lastSyncMs: null,
-    error: null,
-    pulse: 0, // increments every successful poll → drives animations
-    rpcUsed: null,
-  });
+  const [state, setState] = useState(INITIAL_STATE);
 
   const decimalsRef = useRef(null);
   const aliveRef = useRef(true);
@@ -118,12 +115,11 @@ export function useNullaiOnChain({
       status: prev.status === "live" ? "live" : "loading",
     }));
     try {
-      // Fetch decimals once (cached)
       if (decimalsRef.current == null) {
         const { result: decHex } = await ethCallWithFailover(
           rpcUrls,
-          TOKEN_ADDRESS,
-          SEL_DECIMALS,
+          NULLAI_TOKEN_ADDRESS,
+          ERC20_DECIMALS_SELECTOR,
           preferredRpcRef,
         );
         decimalsRef.current = Number(hexToBigInt(decHex));
@@ -132,14 +128,12 @@ export function useNullaiOnChain({
 
       const { result: tsHex, rpcUsed } = await ethCallWithFailover(
         rpcUrls,
-        TOKEN_ADDRESS,
-        SEL_TOTAL_SUPPLY,
+        NULLAI_TOKEN_ADDRESS,
+        ERC20_TOTAL_SUPPLY_SELECTOR,
         preferredRpcRef,
       );
-      const tsRaw = hexToBigInt(tsHex);
-      const totalSupplyHuman = rawToNumber(tsRaw, decimals);
-      const burned = Math.max(ORIGINAL_SUPPLY - totalSupplyHuman, 0);
-      const burnRatio = (burned / ORIGINAL_SUPPLY) * 100;
+      const totalSupplyHuman = rawToNumber(hexToBigInt(tsHex), decimals);
+      const { burned, burnRatio } = deriveSupplyMetrics(totalSupplyHuman);
 
       if (!aliveRef.current) return;
       setState((prev) => ({
@@ -155,6 +149,9 @@ export function useNullaiOnChain({
       }));
     } catch (err) {
       if (!aliveRef.current) return;
+      // Surface the failure in dev tools but keep the UI in fallback mode.
+      // eslint-disable-next-line no-console
+      console.warn("[NULLAI] RPC fetch failed:", err?.message || err);
       setState((prev) => ({
         ...prev,
         status: prev.status === "live" ? "live" : "fallback",
@@ -167,17 +164,18 @@ export function useNullaiOnChain({
   useEffect(() => {
     aliveRef.current = true;
     fetchOnce();
-    timerRef.current = setInterval(fetchOnce, intervalMs);
+    const handle = setInterval(fetchOnce, intervalMs);
+    timerRef.current = handle;
     return () => {
       aliveRef.current = false;
-      if (timerRef.current) clearInterval(timerRef.current);
+      clearInterval(handle);
     };
   }, [fetchOnce, intervalMs]);
 
   return {
     ...state,
-    originalSupply: ORIGINAL_SUPPLY,
-    tokenAddress: TOKEN_ADDRESS,
+    originalSupply: ORIGINAL_SUPPLY_NULLAI,
+    tokenAddress: NULLAI_TOKEN_ADDRESS,
     rpcUrls,
     refresh: fetchOnce,
     format: formatWithCommas,

@@ -18,7 +18,9 @@ const API = `${BACKEND_URL}/api`;
 
 const Home = () => {
   useEffect(() => {
-    // Lightweight backend ping (kept from template; non-blocking)
+    // Lightweight backend ping (kept from template; non-blocking).
+    // API and axios are stable module-scoped values — safe to omit from deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     axios.get(`${API}/`).catch(() => {});
   }, []);
 

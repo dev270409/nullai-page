@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { siteConfig } from "@/config/siteConfig";
+import { COPY_FEEDBACK_MS } from "@/config/constants";
 import { Copy, Check, ExternalLink } from "lucide-react";
 
 function ContractRow({ contract, idx }) {
@@ -8,8 +9,14 @@ function ContractRow({ contract, idx }) {
     try {
       await navigator.clipboard.writeText(contract.address);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch (e) {}
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(
+        `[NULLAI] Failed to copy ${contract.label} address:`,
+        err,
+      );
+    }
   };
 
   const baseScanUrl = `https://basescan.org/address/${contract.address}`;

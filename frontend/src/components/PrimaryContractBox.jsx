@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { siteConfig } from "@/config/siteConfig";
+import { COPY_FEEDBACK_MS } from "@/config/constants";
 import { Copy, Check, Shield } from "lucide-react";
 
 export default function PrimaryContractBox() {
@@ -10,9 +11,10 @@ export default function PrimaryContractBox() {
     try {
       await navigator.clipboard.writeText(primaryContract.address);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch (e) {
-      // ignore
+      setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[NULLAI] Failed to copy primary contract address:", err);
     }
   };
 
