@@ -1,12 +1,16 @@
 import React from "react";
 import { siteConfig } from "@/config/siteConfig";
 import { ArrowUpRight } from "lucide-react";
+import NullaiZeroMark from "@/components/brand/NullaiZeroMark";
 
 function FooterBrand() {
   return (
     <div className="lg:col-span-5">
-      <div className="flex items-baseline gap-3">
-        <span className="font-mono text-[44px] leading-none text-white">0</span>
+      <div className="flex items-center gap-3">
+        <NullaiZeroMark
+          decorative
+          className="h-12 w-auto text-white"
+        />
         <span className="font-mono text-[12px] uppercase tracking-[0.32em] text-white/55">
           NULLAI · v{siteConfig.version}
         </span>

@@ -1,7 +1,9 @@
 import React from "react";
+import NullaiZeroMark from "@/components/brand/NullaiZeroMark";
 
 /**
- * Concentric-rings + spinning conic accent + giant `0` glyph used in the hero.
+ * Concentric-rings + spinning conic accent + official `0` logomark
+ * used in the hero. The mark itself is the SVG NullaiZeroMark.
  */
 export default function HeroLogomark() {
   return (
@@ -30,13 +32,15 @@ export default function HeroLogomark() {
             "radial-gradient(circle, transparent 58%, #000 58.5%, #000 60%, transparent 60.5%)",
         }}
       />
-      <span
+      <NullaiZeroMark
         data-testid="hero-logomark"
-        className="relative font-mono text-[260px] leading-none text-white sm:text-[320px]"
-        style={{ fontWeight: 300, textShadow: "0 0 80px rgba(0,82,255,0.2)" }}
-      >
-        0
-      </span>
+        title="NULLAI"
+        className="relative h-[78%] w-auto text-white"
+        style={{
+          filter:
+            "drop-shadow(0 0 32px rgba(0,82,255,0.28)) drop-shadow(0 0 4px rgba(255,255,255,0.08))",
+        }}
+      />
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[10px] uppercase tracking-[0.32em] text-white/40">
         NULLAI / SCARCITY ENGINE
       </div>
