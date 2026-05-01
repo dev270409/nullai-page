@@ -1,0 +1,22 @@
+# Emergent / dev artifacts that don't belong in a Vercel build
+.emergent/
+memory/
+test_reports/
+test_result.md
+tests/
+scripts/
+
+# Python local artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Frontend local artifacts (Vercel builds fresh)
+frontend/build/
+frontend/node_modules/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
