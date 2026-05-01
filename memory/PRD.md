@@ -21,7 +21,7 @@ Content-only V2 upgrade of the NULLAI landing page for **Base Mainnet live statu
 
 ## What's Been Implemented (2026-01)
 - `TopBanner` — `MAINNET PROTOCOL DEPLOYED — V2 SECURED`.
-- `HeroSection` — `The Autonomous Scarcity Organism` headline, live status pill, large `0` logomark with Base-blue conic glow, primary CTA `Launchpad Incoming` + secondary `Read the Manifesto`.
+- `HeroSection` — `The Autonomous Scarcity Organism` headline, live status pill, **official `NullaiZeroMark` SVG logomark** (asymmetric tall-ellipse ring with diagonal weight shift, `currentColor` + drop-shadow, unique `useId()` mask ids per instance), primary CTA `Launchpad Incoming` + secondary `Read the Manifesto`.
 - `PrimaryContractBox` — Official Contract Address (NULLAI Token) with copy-to-clipboard.
 - `ContractsList` — 3-row table (NULLAI Token / VortexEngine / OracleManager) each with copy button + BaseScan external link.
 - `AuditBadge` — `VERDICT: SAFE FOR MAINNET` · Antigravity AI · 01/05/26.
@@ -36,6 +36,7 @@ Content-only V2 upgrade of the NULLAI landing page for **Base Mainnet live statu
 - `iteration_2.json` — Live on-chain tokenomics: 100% (10/10 assertions). RPC settled on `base.publicnode.com`, scarcity pulse `BEATING`, refresh button working.
 - `iteration_3.json` — Code-quality refactor regression: 100%, 0 console errors, 0 React key warnings.
 - `iteration_4.json` — Vortex Event Ticker: 100% (12/12 assertions). Empty state matches on-chain truth.
+- `iteration_5.json` — Official `0` logomark swap (hero + footer + favicon): 100%, 0 console issues, mask ids unique across instances.
 
 ## Prioritized Backlog
 - **P1** Replace `Launchpad Incoming` with `JOIN THE FAIR LAUNCH ON PINKSALE` once PinkSale URL is live (`siteConfig.links.pinksale`).
