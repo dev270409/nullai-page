@@ -28,11 +28,14 @@ Content-only V2 upgrade of the NULLAI landing page for **Base Mainnet live statu
 - `FeaturesGrid` — 5 cards: Anti-Flashloan TWAP Oracle, Vortex Engine, Reentrancy Protected Reserves, Adaptive Entropy Tax, Hardware-Bound Governance.
 - `WhitepaperSection` — 6 numbered passages (Thesis, Vision, Core Architecture, Mainnet Security Model, Economic Logic, Protocol Philosophy).
 - `TokenomicsPanel` — **Live On-Chain telemetry** (Total Supply / Burned / Burn Ratio + Scarcity Pulse) polling every 15s via public Base RPC failover (llamarpc → publicnode → blastapi → 1rpc → mainnet.base.org). Static V2 spec values preserved as a second row. Powered by `useNullaiOnChain` hook (read-only `eth_call` for `totalSupply()` + `decimals()`, no API keys). Auto-fallback to static numbers if every RPC fails.
+- `VortexEventTicker` — **Bloomberg-style live event stream** (NEW). Reads NULLAI token Transfer events via `eth_getLogs` on Base mainnet (last 500 blocks), classifies each as BURN / TAX / VORTEX / FLOW based on counter-party, fetches block timestamps for relative-time display, polls every 20s. Empty state shows "AWAITING EVENTS · VORTEX IDLE" (correct on-chain outcome — token has zero Transfers as of deployment). Each row links to BaseScan transaction. Built on shared `BASE_RPC_URLS` failover chain.
 - `Footer` — X, Telegram, Whitepaper / Contracts / Audit anchors, disclaimer, launchpad placeholder.
 
 ## Verification
 - `iteration_1.json` — V2 content suite: 100% spec coverage, 0 bugs, 0 console errors.
 - `iteration_2.json` — Live on-chain tokenomics: 100% (10/10 assertions). RPC settled on `base.publicnode.com`, scarcity pulse `BEATING`, refresh button working.
+- `iteration_3.json` — Code-quality refactor regression: 100%, 0 console errors, 0 React key warnings.
+- `iteration_4.json` — Vortex Event Ticker: 100% (12/12 assertions). Empty state matches on-chain truth.
 
 ## Prioritized Backlog
 - **P1** Replace `Launchpad Incoming` with `JOIN THE FAIR LAUNCH ON PINKSALE` once PinkSale URL is live (`siteConfig.links.pinksale`).

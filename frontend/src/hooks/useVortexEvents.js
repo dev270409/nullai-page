@@ -24,13 +24,16 @@ import {
  */
 
 // ─── RPC primitives ────────────────────────────────────────────────────────
+let rpcRequestCounter = 0;
+
 async function rpc(rpcUrl, method, params) {
+  rpcRequestCounter += 1;
   const res = await fetch(rpcUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       jsonrpc: "2.0",
-      id: Date.now(),
+      id: rpcRequestCounter,
       method,
       params,
     }),
