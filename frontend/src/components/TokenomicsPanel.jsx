@@ -122,14 +122,6 @@ function ScarcityPulse({ ratio, pulse, live }) {
           ? "no compression yet · vortex idle"
           : "compression active · vortex extracting"}
       </div>
-
-      <style>{`
-        @keyframes scarcityHeartbeat {
-          0%   { box-shadow: 0 0 0 0 rgba(61,123,255,0.65); opacity: 1; }
-          70%  { box-shadow: 0 0 0 18px rgba(61,123,255,0); opacity: 0.4; }
-          100% { box-shadow: 0 0 0 0 rgba(61,123,255,0); opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 }

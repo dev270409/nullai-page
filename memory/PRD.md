@@ -27,11 +27,12 @@ Content-only V2 upgrade of the NULLAI landing page for **Base Mainnet live statu
 - `AuditBadge` — `VERDICT: SAFE FOR MAINNET` · Antigravity AI · 01/05/26.
 - `FeaturesGrid` — 5 cards: Anti-Flashloan TWAP Oracle, Vortex Engine, Reentrancy Protected Reserves, Adaptive Entropy Tax, Hardware-Bound Governance.
 - `WhitepaperSection` — 6 numbered passages (Thesis, Vision, Core Architecture, Mainnet Security Model, Economic Logic, Protocol Philosophy).
-- `TokenomicsPanel` — Total Supply / Initial Circulating / Liquidity statement.
+- `TokenomicsPanel` — **Live On-Chain telemetry** (Total Supply / Burned / Burn Ratio + Scarcity Pulse) polling every 15s via public Base RPC failover (llamarpc → publicnode → blastapi → 1rpc → mainnet.base.org). Static V2 spec values preserved as a second row. Powered by `useNullaiOnChain` hook (read-only `eth_call` for `totalSupply()` + `decimals()`, no API keys). Auto-fallback to static numbers if every RPC fails.
 - `Footer` — X, Telegram, Whitepaper / Contracts / Audit anchors, disclaimer, launchpad placeholder.
 
 ## Verification
-- Testing agent (`/app/test_reports/iteration_1.json`) — **100% spec coverage, 0 bugs, 0 console errors** on production preview URL.
+- `iteration_1.json` — V2 content suite: 100% spec coverage, 0 bugs, 0 console errors.
+- `iteration_2.json` — Live on-chain tokenomics: 100% (10/10 assertions). RPC settled on `base.publicnode.com`, scarcity pulse `BEATING`, refresh button working.
 
 ## Prioritized Backlog
 - **P1** Replace `Launchpad Incoming` with `JOIN THE FAIR LAUNCH ON PINKSALE` once PinkSale URL is live (`siteConfig.links.pinksale`).
