@@ -11,6 +11,7 @@ import AuditBadge from "@/components/AuditBadge";
 import FeaturesGrid from "@/components/FeaturesGrid";
 import WhitepaperSection from "@/components/WhitepaperSection";
 import TokenomicsPanel from "@/components/TokenomicsPanel";
+import VortexEventTicker from "@/components/VortexEventTicker";
 import Footer from "@/components/Footer";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -34,6 +35,7 @@ const Home = () => {
       <FeaturesGrid />
       <WhitepaperSection />
       <TokenomicsPanel />
+      <VortexEventTicker />
       <Footer />
     </main>
   );
